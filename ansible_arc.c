@@ -1,5 +1,6 @@
 #include <string.h> //memset
 #include <stdlib.h> //abs
+#include <unistd.h> //sleep
 
 #include "print_funcs.h"
 #include "flashc.h"
@@ -100,17 +101,17 @@ void set_mode_arc(void) {
 		resume_cycles();
 		update_leds(2);
 		break;
-	case mHelloWorld:
+	case mArcHello:
 		// print_dbg("\r\n> mode arc helloworld");
 		app_event_handlers[kEventKey] = &handler_HelloKey;
-		app_event_handlers[kEventTr] = &handler_HelloTr;
+		//app_event_handlers[kEventTr] = &handler_HelloTr;
 		app_event_handlers[kEventTrNormal] = &handler_HelloTrNormal;
-		app_event_handlers[kEventMonomeRingEnc] = &handler_HelloEnc;
+		//app_event_handlers[kEventMonomeRingEnc] = &handler_HelloEnc;
 		app_event_handlers[kEventMonomeRefresh] = &handler_HelloRefresh;
 		clock = &clock_null;
 		//
-		init_i2c_slave(II_HI_ADDR);
-		process_ii = &ii_hello;
+		//init_i2c_slave(II_HI_ADDR);
+		//process_ii = &ii_hello;
 		resume_hello();
 		update_leds(3);
 		break;
@@ -147,7 +148,7 @@ static inline void arc_leave_preset(void) {
 		break;
 	case mArcHello:
 
-		app_event_handlers[kEventMonomeRingEnc] = &handler_HelloEnc;
+		//app_event_handlers[kEventMonomeRingEnc] = &handler_HelloEnc;
 		app_event_handlers[kEventKey] = &handler_HelloKey;
 		mode = 0;
 		arc_refresh = &refresh_hello;
@@ -184,8 +185,8 @@ void handler_ArcFrontLong(s32 data) {
 	if(ansible_mode == mArcLevels)
 		set_mode(mArcCycles);
 	else if(ansible_mode == mArcCycles)
-		set_mode(mHelloWorld);
-	else if (ansible_mode == mHelloWorld)
+		set_mode(mArcHello);
+	else if (ansible_mode == mArcHello)
 		set_mode(mArcLevels);
 
 }
@@ -1971,7 +1972,7 @@ uint16_t enc, led;
 // each LED can bet set to values 0..15 (for varibright) 0 being completely off and 15 being the brightest
 for(enc=0;enc<4;enc++)
 {
-	for (led = 0; led < 64; ++i)
+	for (led = 0; led < 64; ++led)
 	{
 		monomeLedBuffer[enc*64 + led] = 8;
 	}
@@ -1982,11 +1983,11 @@ for(enc=0;enc<4;enc++)
 // here we simply tell it to update all 4 rings
 monomeFrameDirty = 0b1111;
 
-delay (5000); //wait 5 seconds?
+sleep (5000); //wait 5 seconds?
 
 for(enc=0;enc<4;enc++)
 {
-	for (led = 0; led < 64; ++i)
+	for (led = 0; led < 64; ++led)
 	{
 		monomeLedBuffer[enc*64 + led] = 2;
 		//LEDs on but very dim
@@ -2030,27 +2031,27 @@ void resume_hello() {
 
 
 void clock_hello(uint8_t phase) {
-	uint8_t i1;
+	
 
 
 	monomeFrameDirty++;
 }
 
-void ii_hello(uint8_t *d, uint8_t len) {
+/*void ii_hello(uint8_t *d, uint8_t len) {
 
 
 
-}
+}*/
 
 
 
-void handler_HelloEnc(s32 data) {
+/*void handler_HelloEnc(s32 data) {
 	//
 	//
 	//
 	//
 	//
-}
+}*/
 
 
 void handler_HelloRefresh(s32 data) {
@@ -2066,6 +2067,7 @@ void handler_HelloRefresh(s32 data) {
 }
 
 void handler_HelloKey(s32 data) {
+	uint16_t enc, led;
 	// print_dbg("\r\n> cycles key ");
 	// print_dbg_ulong(data);
 
@@ -2090,7 +2092,7 @@ void handler_HelloTr(s32 data) {
 	// print_dbg("\r\n> cycles tr ");
 	// print_dbg_ulong(data);
 
-
+	ext_clock = data;
 }
 
 void handler_HelloTrNormal(s32 data) {
@@ -2100,12 +2102,12 @@ void handler_HelloTrNormal(s32 data) {
 	ext_clock = data;
 }
 
-static void key_long_hello(uint8_t key) {
+/*static void key_long_hello(uint8_t key) {
 	// print_dbg("\r\nLONG PRESS >>>>>>> ");
 	// print_dbg_ulong(key);
 
 
-}
+}*/
 
 void refresh_hello(void) {
 
